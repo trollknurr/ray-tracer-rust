@@ -1,11 +1,11 @@
 use std::fmt;
-use std::ops::{Mul, Add, Div, Sub};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Copy, Clone, PartialEq, Default, Debug)]
 pub struct Vec3 {
     e0: f32,
     e1: f32,
-    e2: f32
+    e2: f32,
 }
 
 impl fmt::Display for Vec3 {
@@ -52,7 +52,6 @@ impl Div<f32> for Vec3 {
     fn div(self, f: f32) -> Self::Output {
         self * (1. / f)
     }
-
 }
 
 impl Sub<Vec3> for Vec3 {
@@ -62,21 +61,35 @@ impl Sub<Vec3> for Vec3 {
         Vec3::new(
             self.x() - other.x(),
             self.y() - other.y(),
-            self.z() - other.z()
+            self.z() - other.z(),
         )
     }
 }
 
+impl Neg for Vec3 {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Vec3::new(-self.x(), -self.y(), -self.z())
+    }
+}
+
 impl Vec3 {
-    pub fn x(&self) -> f32 {self.e0}
-    pub fn y(&self) -> f32 {self.e1}
-    pub fn z(&self) -> f32 {self.e2}
+    pub fn x(&self) -> f32 {
+        self.e0
+    }
+    pub fn y(&self) -> f32 {
+        self.e1
+    }
+    pub fn z(&self) -> f32 {
+        self.e2
+    }
 
     pub fn new(x: f32, y: f32, z: f32) -> Self {
-        Vec3{
+        Vec3 {
             e0: x,
             e1: y,
-            e2: z
+            e2: z,
         }
     }
 
@@ -96,6 +109,6 @@ pub fn unit_vector(v: Vec3) -> Vec3 {
     v / v.length()
 }
 
-pub fn dot(u: Vec3, v: Vec3) -> f32 {
+pub fn dot(u: &Vec3, v: &Vec3) -> f32 {
     u.x() * v.x() + u.y() * v.y() + u.z() * v.z()
 }
