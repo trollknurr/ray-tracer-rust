@@ -73,11 +73,7 @@ impl Sub<Vec3> for Vec3 {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self::Output {
-        Vec3::new(
-            self.x() - other.x(),
-            self.y() - other.y(),
-            self.z() - other.z(),
-        )
+        Vec3::new(self.x() - other.x(), self.y() - other.y(), self.z() - other.z())
     }
 }
 
@@ -101,11 +97,7 @@ impl Vec3 {
     }
 
     pub fn new(x: f32, y: f32, z: f32) -> Self {
-        Vec3 {
-            e0: x,
-            e1: y,
-            e2: z,
-        }
+        Vec3 { e0: x, e1: y, e2: z }
     }
 
     pub fn length(&self) -> f32 {
@@ -156,4 +148,8 @@ pub fn random_unit_vector() -> Vec3 {
 
 pub fn dot(u: &Vec3, v: &Vec3) -> f32 {
     u.x() * v.x() + u.y() * v.y() + u.z() * v.z()
+}
+
+pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
+    *v - (2. * dot(v, n) * *n)
 }

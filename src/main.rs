@@ -8,7 +8,7 @@ mod sphere;
 mod vec3;
 
 use crate::hittable_list::HittableList;
-use crate::material::Lambertian;
+use crate::material::{Lambertian, Metal};
 use crate::sphere::Sphere;
 use crate::vec3::Color;
 use rand::prelude::*;
@@ -22,8 +22,7 @@ fn ray_color(r: &ray::Ray, world: &HittableList, depth: i32) -> vec3::Color {
         Some(record) => {
             let scatter_result = record.material.scatter(r, &record);
             if scatter_result.is_scatter {
-                return scatter_result.attenuation
-                    * ray_color(&scatter_result.scattered, world, depth - 1);
+                return scatter_result.attenuation * ray_color(&scatter_result.scattered, world, depth - 1);
             }
             return Color::new(0., 0., 0.);
         }
@@ -46,9 +45,10 @@ fn main() {
     // Materials
     let material_ground = Rc::new(Lambertian::new(Color::new(0.8, 0.8, 0.)));
     let material_center = Rc::new(Lambertian::new(Color::new(0.7, 0.3, 0.3)));
+    let material_left = Rc::new(Metal::new(Color::new(0.8, 0.8, 0.8), 0.3));
+    let material_right = Rc::new(Metal::new(Color::new(0.8, 0.6, 0.2), 1.0));
 
     let mut world = HittableList::new();
-
     world.add(Rc::new(Sphere::new(
         vec3::Point3::new(0., -100.5, -1.),
         100.,
@@ -59,6 +59,17 @@ fn main() {
         0.5,
         material_center,
     )));
+    world.add(Rc::new(Sphere::new(
+        vec3::Point3::new(-1., 0., -1.),
+        0.5,
+        material_left,
+    )));
+    world.add(Rc::new(Sphere::new(
+        vec3::Point3::new(1., 0., -1.),
+        0.5,
+        material_right,
+    )));
+
     let camera = camera::Camera::new();
 
     print!("P3\n{} {}\n255\n", image_width, image_height);
