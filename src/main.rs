@@ -2,14 +2,16 @@ mod camera;
 mod color;
 mod hittable;
 mod hittable_list;
+mod material;
 mod ray;
 mod sphere;
 mod vec3;
 
-use rand::prelude::*;
-
 use crate::hittable_list::HittableList;
+use crate::material::Lambertian;
 use crate::sphere::Sphere;
+use crate::vec3::Color;
+use rand::prelude::*;
 use std::rc::Rc;
 
 fn ray_color(r: &ray::Ray, world: &HittableList, depth: i32) -> vec3::Color {
@@ -18,13 +20,12 @@ fn ray_color(r: &ray::Ray, world: &HittableList, depth: i32) -> vec3::Color {
     }
     match world.hit(r, 0.001, f32::INFINITY) {
         Some(record) => {
-            let target = record.p + record.normal + vec3::random_unit_vector();
-            return 0.5
-                * ray_color(
-                    &ray::Ray::new(record.p, target - record.p),
-                    world,
-                    depth - 1,
-                );
+            let scatter_result = record.material.scatter(r, &record);
+            if scatter_result.is_scatter {
+                return scatter_result.attenuation
+                    * ray_color(&scatter_result.scattered, world, depth - 1);
+            }
+            return Color::new(0., 0., 0.);
         }
         None => (),
     }
@@ -42,13 +43,22 @@ fn main() {
     let samples_per_pixel = 100;
     let max_depth = 50;
 
+    // Materials
+    let material_ground = Rc::new(Lambertian::new(Color::new(0.8, 0.8, 0.)));
+    let material_center = Rc::new(Lambertian::new(Color::new(0.7, 0.3, 0.3)));
+
     let mut world = HittableList::new();
-    world.add(Rc::new(Sphere::new(vec3::Point3::new(0., 0., -1.), 0.5)));
+
     world.add(Rc::new(Sphere::new(
         vec3::Point3::new(0., -100.5, -1.),
         100.,
+        material_ground,
     )));
-
+    world.add(Rc::new(Sphere::new(
+        vec3::Point3::new(0., 0., -1.),
+        0.5,
+        material_center,
+    )));
     let camera = camera::Camera::new();
 
     print!("P3\n{} {}\n255\n", image_width, image_height);

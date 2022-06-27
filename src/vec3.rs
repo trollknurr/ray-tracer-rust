@@ -37,6 +37,18 @@ impl Mul<Vec3> for f32 {
     }
 }
 
+impl Mul<Vec3> for Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, v: Vec3) -> Vec3 {
+        Vec3 {
+            e0: self.e0 * v.e0,
+            e1: self.e1 * v.e1,
+            e2: self.e2 * v.e2,
+        }
+    }
+}
+
 impl Add<Vec3> for Vec3 {
     type Output = Vec3;
 
@@ -123,6 +135,11 @@ impl Vec3 {
             p = Vec3::random(-1., 1.);
         }
         p
+    }
+
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8_f32;
+        (self.e0.abs() < s) && (self.e1.abs() < s) && (self.e2.abs() < s)
     }
 }
 
