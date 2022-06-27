@@ -14,9 +14,9 @@ pub fn write_color(pixel_color: crate::vec3::Color, samples_per_pixel: u8) {
     let mut b = pixel_color.z();
 
     let scale = 1.0 / (samples_per_pixel as f32);
-    r *= scale;
-    g *= scale;
-    b *= scale;
+    r = (scale * r).sqrt();
+    g = (scale * g).sqrt();
+    b = (scale * b).sqrt();
 
     let ir = (256 as f32 * clamp(r, 0.0, 0.999)) as u8;
     let ig = (256 as f32 * clamp(g, 0.0, 0.999)) as u8;

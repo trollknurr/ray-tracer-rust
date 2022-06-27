@@ -1,6 +1,9 @@
 use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
+use rand::distributions::Uniform;
+use rand::prelude::*;
+
 #[derive(Copy, Clone, PartialEq, Default, Debug)]
 pub struct Vec3 {
     e0: f32,
@@ -100,6 +103,27 @@ impl Vec3 {
     pub fn length_squared(&self) -> f32 {
         self.e0 * self.e0 + self.e1 * self.e1 + self.e2 * self.e2
     }
+
+    pub fn random(min: f32, max: f32) -> Vec3 {
+        let between = Uniform::new_inclusive(min, max);
+        let mut rng = rand::thread_rng();
+        Vec3 {
+            e0: between.sample(&mut rng),
+            e1: between.sample(&mut rng),
+            e2: between.sample(&mut rng),
+        }
+    }
+
+    pub fn random_in_unit_sphere() -> Vec3 {
+        let mut p = Vec3::random(-1., 1.);
+        loop {
+            if p.length_squared() < 1. {
+                break;
+            }
+            p = Vec3::random(-1., 1.);
+        }
+        p
+    }
 }
 
 pub type Point3 = Vec3;
@@ -107,6 +131,10 @@ pub type Color = Vec3;
 
 pub fn unit_vector(v: Vec3) -> Vec3 {
     v / v.length()
+}
+
+pub fn random_unit_vector() -> Vec3 {
+    unit_vector(Vec3::random_in_unit_sphere())
 }
 
 pub fn dot(u: &Vec3, v: &Vec3) -> f32 {

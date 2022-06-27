@@ -12,9 +12,20 @@ use crate::hittable_list::HittableList;
 use crate::sphere::Sphere;
 use std::rc::Rc;
 
-fn ray_color(r: &ray::Ray, world: &HittableList) -> vec3::Color {
-    match world.hit(r, 0., f32::INFINITY) {
-        Some(record) => return 0.5 * (record.normal + vec3::Color::new(1., 1., 1.)),
+fn ray_color(r: &ray::Ray, world: &HittableList, depth: i32) -> vec3::Color {
+    if depth <= 0 {
+        return vec3::Color::new(0., 0., 0.);
+    }
+    match world.hit(r, 0.001, f32::INFINITY) {
+        Some(record) => {
+            let target = record.p + record.normal + vec3::random_unit_vector();
+            return 0.5
+                * ray_color(
+                    &ray::Ray::new(record.p, target - record.p),
+                    world,
+                    depth - 1,
+                );
+        }
         None => (),
     }
 
@@ -29,6 +40,7 @@ fn main() {
     let image_width = 400;
     let image_height = ((image_width as f64) / aspect_ratio) as i32;
     let samples_per_pixel = 100;
+    let max_depth = 50;
 
     let mut world = HittableList::new();
     world.add(Rc::new(Sphere::new(vec3::Point3::new(0., 0., -1.), 0.5)));
@@ -51,7 +63,7 @@ fn main() {
                 let u = (i as f32 + ru) / (image_width - 1) as f32;
                 let v = (j as f32 + rv) / (image_height - 1) as f32;
                 let ray = camera.get_ray(u, v);
-                pixel_color = pixel_color + ray_color(&ray, &world);
+                pixel_color = pixel_color + ray_color(&ray, &world, max_depth);
             }
             color::write_color(pixel_color, samples_per_pixel);
         }
