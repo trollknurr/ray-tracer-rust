@@ -1,4 +1,4 @@
 # Ray tracer
 
-Current commit image:
+Current commit image:  
 ![image](image.png)
